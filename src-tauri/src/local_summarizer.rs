@@ -56,13 +56,10 @@ pub fn summarize_text_local(text: &str, num_sentences: usize) -> Option<LocalSum
         short_summary.push('.');
     }
 
-    // 5) Mock metadata
-    let relevance_to_officials: Vec<String> = vec![
-        "Deadline: 15 Sep".to_string(),
-        "Tender value: ₹2 Cr".to_string(),
-    ];
-    let action_items: Vec<String> = vec!["Prepare bid".to_string(), "Upload documents".to_string()];
-    let confidence_estimate: String = "medium".to_string();
+    // 5) Set derived fields to "Not Available in Local Summarization"
+    let relevance_to_officials: Vec<String> = vec!["Not Available in Local Summarization".to_string()];
+    let action_items: Vec<String> = vec!["Not Available in Local Summarization".to_string()];
+    let confidence_estimate: String = "Not Available in Local Summarization".to_string();
 
     Some(LocalSummary {
         short_summary,
