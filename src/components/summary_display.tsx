@@ -17,11 +17,27 @@ interface SummaryDisplayProps {
 export default function SummaryDisplay({ summary, isLoading, isAIMode, filePath, onSummarize }: SummaryDisplayProps) {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
+  const relevance: string[] = Array.isArray(summary?.relevance_to_officials)
+    ? summary.relevance_to_officials
+    : (summary?.relevance_to_officials ? [String(summary.relevance_to_officials)] : []);
+
+  const actions: string[] = Array.isArray(summary?.action_items)
+    ? summary.action_items
+    : (summary?.action_items ? [String(summary.action_items)] : []);
+
+  const confidence: string = typeof summary?.confidence_estimate === "string"
+    ? summary.confidence_estimate
+    : "unknown";
+
+  const hasError = summary && summary.error;
+
   return (
     <div className="flex-1 flex flex-col p-4 space-y-4 bg-[var(--background)]">
       <Card className="flex-1 flex flex-col bg-[var(--card)] border-[var(--border)]">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-[var(--card-foreground)]">Summary ({isAIMode ? "AI" : "Local"})</CardTitle>
+          <CardTitle className="text-[var(--card-foreground)]">
+            Summary ({isAIMode ? "AI" : "Local"})
+          </CardTitle>
           {summary && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
@@ -45,6 +61,17 @@ export default function SummaryDisplay({ summary, isLoading, isAIMode, filePath,
         <CardContent className="flex-1 overflow-auto">
           {isLoading ? (
             <p className="text-[var(--muted-foreground)]">Processing PDF...</p>
+          ) : hasError ? (
+            <Card className="border-red-500/40 bg-red-500/10">
+              <CardHeader>
+                <CardTitle className="text-red-500">Error</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-red-400 text-sm">
+                  {String(summary.error)}
+                </p>
+              </CardContent>
+            </Card>
           ) : summary ? (
             <div className="space-y-4">
               {/* Short Summary */}
@@ -53,7 +80,9 @@ export default function SummaryDisplay({ summary, isLoading, isAIMode, filePath,
                   <CardTitle className="text-[var(--secondary-foreground)]">Short Summary</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-[var(--secondary-foreground)]">{summary.short_summary}</p>
+                  <p className="text-[var(--secondary-foreground)]">
+                    {summary.short_summary || "No summary available."}
+                  </p>
                 </CardContent>
               </Card>
 
@@ -62,26 +91,34 @@ export default function SummaryDisplay({ summary, isLoading, isAIMode, filePath,
                 <CardHeader>
                   <CardTitle className="text-[var(--accent-foreground)]">Derived Values</CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-2">
+                <CardContent className="space-y-3">
                   <div>
                     <strong className="text-[var(--accent-foreground)]">Relevance to Officials:</strong>
-                    <ul className="list-disc list-inside text-[var(--accent-foreground)] mt-1">
-                      {summary.relevance_to_officials.map((item: string, index: number) => (
-                        <li key={index}>{item}</li>
-                      ))}
-                    </ul>
+                    {relevance.length ? (
+                      <ul className="list-disc list-inside text-[var(--accent-foreground)] mt-1">
+                        {relevance.map((item: string, index: number) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[var(--accent-foreground)]/70 mt-1">N/A</p>
+                    )}
                   </div>
                   <div>
                     <strong className="text-[var(--accent-foreground)]">Action Items:</strong>
-                    <ul className="list-disc list-inside text-[var(--accent-foreground)] mt-1">
-                      {summary.action_items.map((item: string, index: number) => (
-                        <li key={index}>{item}</li>
-                      ))}
-                    </ul>
+                    {actions.length ? (
+                      <ul className="list-disc list-inside text-[var(--accent-foreground)] mt-1">
+                        {actions.map((item: string, index: number) => (
+                          <li key={index}>{item}</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="text-[var(--accent-foreground)]/70 mt-1">N/A</p>
+                    )}
                   </div>
                   <div>
                     <strong className="text-[var(--accent-foreground)]">Confidence Estimate:</strong>
-                    <span className="text-[var(--accent-foreground)] ml-2">{summary.confidence_estimate}</span>
+                    <span className="text-[var(--accent-foreground)] ml-2">{confidence}</span>
                   </div>
                 </CardContent>
               </Card>
@@ -95,7 +132,11 @@ export default function SummaryDisplay({ summary, isLoading, isAIMode, filePath,
       </Card>
 
       {/* Action Button */}
-      <Button onClick={onSummarize} disabled={isLoading || !filePath} className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/80">
+      <Button
+        onClick={onSummarize}
+        disabled={isLoading || !filePath}
+        className="bg-[var(--primary)] text-[var(--primary-foreground)] hover:bg-[var(--primary)]/80"
+      >
         {isLoading ? "Summarizing..." : "Summarize"}
       </Button>
     </div>

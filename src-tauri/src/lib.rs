@@ -1,7 +1,9 @@
-use pdf_extract::extract_text;
+mod ai_summarization;
+
 use serde::{Deserialize, Serialize};
-use tokio::time::{sleep, Duration};
+use pdf_extract::extract_text;
 pub mod local_summarizer;
+use ai_summarization::summarize_with_gemini;
 
 #[derive(Serialize, Deserialize)]
 pub struct Summary {
@@ -51,23 +53,15 @@ async fn summarize_ai(file_path: String) -> Result<Summary, String> {
         return Err("No text extracted from PDF".to_string());
     }
 
-    // Simulate API call with 3-second timeout
-    sleep(Duration::from_secs(3)).await;
+    // Get raw LLM response
+    let raw_llm_response = summarize_with_gemini(&text).await?;
 
-    // Mock AI summary
-    let short_summary = "Coming soon: AI-powered summary.".to_string();
-    let relevance_to_officials = vec![
-        "Deadline: 15 Sep".to_string(),
-        "Tender value: ₹2 Cr".to_string(),
-    ];
-    let action_items = vec!["Prepare bid".to_string(), "Upload documents".to_string()];
-    let confidence_estimate = "high".to_string();
-
+    // Return raw response in Summary (frontend will structure it)
     Ok(Summary {
-        short_summary,
-        relevance_to_officials,
-        action_items,
-        confidence_estimate,
+        short_summary: raw_llm_response,  // Raw text here
+        relevance_to_officials: vec![],  // Empty for now
+        action_items: vec![],
+        confidence_estimate: "".to_string(),
         raw_text: text,
     })
 }
