@@ -2687,6 +2687,7 @@ name = "pdf_summarizer"
 version = "0.1.0"
 dependencies = [
  "pdf-extract",
+ "regex",
  "serde",
  "serde_json",
  "tauri",
