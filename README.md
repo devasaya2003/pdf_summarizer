@@ -1,7 +1,9 @@
-# Tauri + React + Typescript
+This was made as an assignment.
 
-This template should help get you started developing with Tauri, React and Typescript in Vite.
+To build the project:
+- pnpm install
+- cd src-tauri/ && cargo build
+- pnpm tauri build
 
-## Recommended IDE Setup
-
-- [VS Code](https://code.visualstudio.com/) + [Tauri](https://marketplace.visualstudio.com/items?itemName=tauri-apps.tauri-vscode) + [rust-analyzer](https://marketplace.visualstudio.com/items?itemName=rust-lang.rust-analyzer)
+I use arch and to build for windows, I had to do some setup and this is the command:
+- pnpm tauri build --target x86_64-pc-windows-gnu
